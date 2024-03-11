@@ -4,8 +4,18 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import userRoutes from "./routes/users";
 import authRoute from "./routes/auth";
+import myHotelRoute from './routes/my-hotels'
+import hotelRoutes from './routes/hotels'
 import cookieParser from "cookie-parser";
 import path from "path";
+import {v2 as cloudinary} from 'cloudinary';
+
+
+cloudinary.config({
+  cloud_name: process.env.CLODINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLODINARY_API_SECRET,
+})
 
 mongoose
   .connect(process.env.MONGODB_CONNECTION_STRING as string)
@@ -28,6 +38,8 @@ app.use(express.static(path.join(__dirname, "../../frontend/dist")));
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoutes);
+app.use("/api/my-hotels", myHotelRoute)
+app.use("/api/hotels", hotelRoutes)
 
 app.listen(7000, () => {
   console.log("server is running on localhost:7000");
