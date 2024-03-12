@@ -2,8 +2,7 @@ import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 import * as apiClient from "../api-client";
 import { useAppContext } from "../contexts/AppContext";
-import { Link, useNavigate } from "react-router-dom";
-
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export type SignInFormData = {
   email: string;
@@ -11,30 +10,30 @@ export type SignInFormData = {
 };
 
 export default function SignIn() {
-  const queryClient = useQueryClient()
-    const {showToast} = useAppContext()
-    const navigate = useNavigate()
+  const queryClient = useQueryClient();
+  const { showToast } = useAppContext();
+  const navigate = useNavigate();
+  const location = useLocation()
   const {
     register,
     formState: { errors },
-    handleSubmit
+    handleSubmit,
   } = useForm<SignInFormData>();
 
   const mutation = useMutation(apiClient.signIn, {
     onSuccess: async () => {
-      showToast({message:"Sign in Successful", type: "SUCCESS"})
-      await queryClient.invalidateQueries("validateToken")
-      navigate("/")
+      showToast({ message: "Sign in Successful", type: "SUCCESS" });
+      await queryClient.invalidateQueries("validateToken");
+      navigate(location.state?.from?.pathname || "/");
     },
     onError: (error: Error) => {
-        showToast({message:error.message , type: "ERROR"})
+      showToast({ message: error.message, type: "ERROR" });
     },
   });
 
-
   const onSubmit = handleSubmit((data) => {
     mutation.mutate(data);
-  })
+  });
   return (
     <form action="" className="flex flex-col gap-5" onSubmit={onSubmit}>
       <h2 className="text-3xl font-bold">Sign In</h2>
@@ -71,7 +70,9 @@ export default function SignIn() {
       <span className="flex items-center justify-between">
         <span className="text-sm">
           Not Registered?
-          <Link className="underline" to={'/register'}>Create an Account here</Link>
+          <Link className="underline" to={"/register"}>
+            Create an Account here
+          </Link>
         </span>
         <button
           type="submit"
